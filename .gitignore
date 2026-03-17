@@ -34,3 +34,11 @@ pnpm-debug.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# OpenNext
+.open-next
+
+# cloudflare env
+.dev.vars
+.wrangler
+
