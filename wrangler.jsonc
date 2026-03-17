@@ -34,5 +34,13 @@
 		// Enable image optimization
 		// see https://opennext.js.org/cloudflare/howtos/image
 		"binding": "IMAGES"
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "blueflare_d1",
+			"database_name": "blueflare-d1",
+			"database_id": "e56d545c-2047-4e88-ae0e-8b824d7e749a",
+			"remote": true
+		}
+	]
 }
