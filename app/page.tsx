@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
 export default function Page() {
@@ -12,10 +12,10 @@ export default function Page() {
           <Button className="mt-2">Button</Button>
         </div>
         <div className="flex gap-2">
-          <Link href="/login" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/login" className="inline-flex h-9 items-center justify-center rounded-md border border-border bg-background px-2.5 text-sm font-medium shadow-xs hover:bg-muted">
             ログイン
           </Link>
-          <Link href="/signup" className={buttonVariants()}>
+          <Link href="/signup" className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/80">
             新規登録
           </Link>
         </div>
