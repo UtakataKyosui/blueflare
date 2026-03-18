@@ -35,8 +35,10 @@ export function DiaryDashboard() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[600px] bg-primary/5 rounded-[100%] blur-[120px] pointer-events-none -z-10" />
       
       {session && (
-        <div className="relative z-10 w-full flex flex-col items-center mt-8">
-          <DiaryCalendar refreshKey={refreshKey} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+        <div className="relative z-10 w-full flex flex-col items-center mt-8 px-4">
+          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[40%] transition-all duration-300">
+            <DiaryCalendar refreshKey={refreshKey} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+          </div>
           
           {selectedDate && (
             <div className="mt-6">

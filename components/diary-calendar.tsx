@@ -46,7 +46,7 @@ export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryC
   );
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-card/40 backdrop-blur-xl border-white/10 dark:border-white/5 shadow-2xl">
+    <Card className="w-full bg-card/40 backdrop-blur-xl border-white/10 dark:border-white/5 shadow-2xl">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium text-center">記録カレンダー</CardTitle>
       </CardHeader>
@@ -59,14 +59,8 @@ export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryC
           modifiers={{
             hasEntry: (date) => entryDates.has(format(date, "yyyy-MM-dd")),
           }}
-          modifiersStyles={{
-            hasEntry: {
-              fontWeight: "bold",
-              textDecoration: "underline",
-              textDecorationColor: "hsl(var(--primary))",
-              textDecorationThickness: "2px",
-              textUnderlineOffset: "4px"
-            }
+          modifiersClassNames={{
+            hasEntry: "bg-blue-500 text-white font-bold hover:bg-blue-600 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 rounded-md"
           }}
         />
       </CardContent>

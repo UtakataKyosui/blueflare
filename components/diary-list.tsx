@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
+import Link from "next/link";
 
 type DiaryEntry = {
   id: string;
@@ -89,29 +90,32 @@ export function DiaryList({ refreshKey, selectedDate }: { refreshKey: number, se
           } catch(e) {}
 
           return (
-            <div key={entry.id} className="group bg-card/60 backdrop-blur-md text-card-foreground p-7 rounded-3xl border border-white/10 dark:border-white/5 shadow-xl hover:shadow-2xl hover:bg-card/80 transition-all duration-300 flex flex-col relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl -z-10 group-hover:bg-primary/10 transition-colors" />
-              
-              <div className="flex items-start justify-between mb-4 gap-4">
-                <span className="text-sm font-medium text-muted-foreground/80">
-                  {format(new Date(entry.createdAt), "MMMM d, yyyy • h:mm a")}
-                </span>
-                <span className={`text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 whitespace-nowrap ${sentimentColor}`}>
-                  <span>{sentimentIcon}</span>
-                  {sentimentLabel}
-                </span>
+            <Link key={entry.id} href={`/entry/${entry.id}`} passHref>
+              <div className="group cursor-pointer bg-card/60 backdrop-blur-md text-card-foreground p-6 rounded-3xl border border-white/10 dark:border-white/5 shadow-xl hover:shadow-2xl hover:bg-card/80 transition-all duration-300 flex flex-col relative overflow-hidden h-full">
+                <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl -z-10 group-hover:bg-primary/10 transition-colors" />
+                
+                <div className="flex items-start justify-between mb-4 gap-4">
+                  <span className="text-sm font-medium text-muted-foreground/80">
+                    {format(new Date(entry.createdAt), "MMMM d, yyyy")}
+                  </span>
+                  <span className={`text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 whitespace-nowrap ${sentimentColor}`}>
+                    <span>{sentimentIcon}</span>
+                    {sentimentLabel}
+                  </span>
+                </div>
+                
+                <div className="relative flex-grow">
+                  <p className="text-base text-foreground/90 leading-relaxed line-clamp-3">
+                    {entry.transcription}
+                  </p>
+                </div>
+                
+                <div className="mt-4 pt-4 border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity">
+                  <span>{format(new Date(entry.createdAt), "h:mm a")}</span>
+                  <span>View Details →</span>
+                </div>
               </div>
-              
-              <div className="mb-6 relative">
-                <div className="absolute -left-3 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/50 to-transparent rounded-full" />
-                <p className="text-base italic text-foreground/80 leading-relaxed pl-4">"{entry.transcription}"</p>
-              </div>
-              
-              <div className="mt-auto pt-6 border-t border-border/50">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-primary mb-2">AI Reflection</h4>
-                <p className="text-sm font-medium leading-relaxed text-foreground/90">{entry.reflection}</p>
-              </div>
-            </div>
+            </Link>
           );
         })}
       </div>
