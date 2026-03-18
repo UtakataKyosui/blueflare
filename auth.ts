@@ -9,6 +9,7 @@ export const getAuth = cache(() =>
     baseURL: process.env.BETTER_AUTH_URL,
     database: drizzleAdapter(getDb(), {
       provider: "sqlite",
+      useDatabaseTransactions: false,
     }),
     emailAndPassword: {
       enabled: true,
