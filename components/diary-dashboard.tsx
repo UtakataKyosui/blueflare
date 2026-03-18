@@ -36,7 +36,7 @@ export function DiaryDashboard() {
       
       {session && (
         <div className="relative z-10 w-full flex flex-col items-center mt-8 px-4">
-          <div className="w-full aspect-[3/4] sm:w-[80%] md:w-[60%] lg:w-[40%] lg:aspect-square transition-all duration-300">
+          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[40%] transition-all duration-300">
             <DiaryCalendar refreshKey={refreshKey} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
           </div>
           
