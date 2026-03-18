@@ -18,6 +18,8 @@ export async function POST(req: NextRequest) {
     const text = formData.get("text") as string;
     const sentimentRaw = formData.get("sentiment") as string;
     const reflectionRaw = formData.get("reflection") as string;
+    const dateStr = formData.get("date") as string;
+    
     if (!text || text.trim() === "") {
       return NextResponse.json({ error: "No transcription text provided" }, { status: 400 });
     }
@@ -34,13 +36,25 @@ export async function POST(req: NextRequest) {
     console.log("Saving to database...");
     const id = crypto.randomUUID();
     const db = getDb();
+    
+    let createdAtDate = new Date();
+    if (dateStr) {
+      const parsedDate = new Date(dateStr);
+      if (!isNaN(parsedDate.getTime())) {
+        // 時間を現在の時刻に設定し、過去日の指定でも時間が0:00にならないようにする
+        parsedDate.setHours(new Date().getHours());
+        parsedDate.setMinutes(new Date().getMinutes());
+        createdAtDate = parsedDate;
+      }
+    }
+
     await db.insert(diaryEntries).values({
       id,
       userId: session.user.id,
       transcription: text,
       sentiment,
       reflection,
-      createdAt: new Date(),
+      createdAt: createdAtDate,
     });
     console.log("Save successful");
 
