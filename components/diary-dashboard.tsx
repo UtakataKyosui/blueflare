@@ -31,15 +31,15 @@ export function DiaryDashboard() {
           Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.
         </p>
       </div>
-      
+
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[600px] bg-primary/5 rounded-[100%] blur-[120px] pointer-events-none -z-10" />
-      
+
       {session && (
         <div className="relative z-10 w-full flex flex-col items-center mt-8 px-4">
-          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[40%] transition-all duration-300">
+          <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[60%] transition-all duration-300">
             <DiaryCalendar refreshKey={refreshKey} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
           </div>
-          
+
           {selectedDate && (
             <div className="mt-6">
               <Link href={`/record/${format(selectedDate, "yyyy-MM-dd")}`}>
@@ -52,7 +52,7 @@ export function DiaryDashboard() {
           )}
         </div>
       )}
-      
+
       <div className="relative z-10 mt-16 pb-20">
         <DiaryList refreshKey={refreshKey} selectedDate={selectedDate} />
       </div>
