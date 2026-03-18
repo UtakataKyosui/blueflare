@@ -42,3 +42,5 @@ next-env.d.ts
 .dev.vars
 .wrangler
 
+# pnpm 
+.pnpm-store/
