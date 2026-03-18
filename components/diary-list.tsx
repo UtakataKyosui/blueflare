@@ -11,7 +11,7 @@ type DiaryEntry = {
   createdAt: string;
 };
 
-export function DiaryList({ refreshKey }: { refreshKey: number }) {
+export function DiaryList({ refreshKey, selectedDate }: { refreshKey: number, selectedDate?: Date }) {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -38,19 +38,37 @@ export function DiaryList({ refreshKey }: { refreshKey: number }) {
     return <div className="mt-8 text-center text-muted-foreground animate-pulse">Loading entries...</div>;
   }
 
+  const filteredEntries = selectedDate 
+    ? entries.filter(e => format(new Date(e.createdAt), "yyyy-MM-dd") === format(selectedDate, "yyyy-MM-dd"))
+    : entries;
+
   if (entries.length === 0) {
     return <div className="mt-8 text-center text-muted-foreground">No entries yet. Start recording above!</div>;
+  }
+
+  if (filteredEntries.length === 0) {
+    return <div className="mt-8 text-center text-muted-foreground px-4 py-8 bg-muted/20 border border-white/5 rounded-xl">選択した日付には日記がありません。</div>;
   }
 
   return (
     <div className="mt-12 space-y-8">
       <div className="flex items-center gap-3">
-        <h3 className="text-2xl font-bold tracking-tight">Past Entries</h3>
+        <h3 className="text-2xl font-bold tracking-tight">
+          {selectedDate ? `${format(selectedDate, "yyyy/MM/dd")} の記録` : "Past Entries"}
+        </h3>
+        {selectedDate && (
+          <button 
+            onClick={() => {/* will be handled by parent clearing it or just visual */}} 
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            (日付で絞り込み中)
+          </button>
+        )}
         <div className="h-[1px] flex-1 bg-border/50" />
       </div>
       
       <div className="grid gap-6 md:grid-cols-2">
-        {entries.map((entry) => {
+        {filteredEntries.map((entry) => {
           let sentimentLabel = "Neutral";
           let sentimentColor = "bg-muted text-muted-foreground";
           let sentimentIcon = "💭";

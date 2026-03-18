@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 // Web Speech API interfaces
 interface SpeechRecognitionEvent {
@@ -29,21 +31,22 @@ interface SpeechRecognition extends EventTarget {
 
 declare global {
   interface Window {
-    SpeechRecognition: {
-      new (): SpeechRecognition;
-    };
-    webkitSpeechRecognition: {
-      new (): SpeechRecognition;
-    };
+    SpeechRecognition: { new (): SpeechRecognition };
+    webkitSpeechRecognition: { new (): SpeechRecognition };
   }
 }
 
-export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
+export function VoiceRecorder({ initialDate }: { initialDate: string }) {
+  const { data: session, isPending } = useSession();
+  const router = useRouter();
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [transcript, setTranscript] = useState("");
-  const [llmProgress, setLlmProgress] = useState<string>("");
+  const [llmProgress, setLlmProgress] = useState("");
+  
+  // Record date is controlled by the outer modal
+
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const workerRef = useRef<Worker | null>(null);
   const reflectionWorkerRef = useRef<Worker | null>(null);
@@ -168,15 +171,16 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
     }
     try {
       setLlmProgress("感情分析を実行中...");
-      const sentiment = await analyzeSentiment(text);
+      const sentimentResult = await analyzeSentiment(text);
       
       setLlmProgress("振り返りの生成を開始します...");
-      const reflection = await analyzeReflection(text);
+      const reflectionResult = await analyzeReflection(text);
 
       const formData = new FormData();
-      formData.append("text", text);
-      formData.append("sentiment", JSON.stringify(sentiment));
-      formData.append("reflection", reflection);
+      formData.append("transcription", text);
+      formData.append("sentiment", JSON.stringify(sentimentResult));
+      formData.append("reflection", reflectionResult);
+      formData.append("date", initialDate);
 
       const response = await fetch("/api/diary", {
         method: "POST",
@@ -189,7 +193,12 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
 
       setTranscript("");
       setLlmProgress("");
-      onEntryAdded();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("diary-updated"));
+      }
+      setTimeout(() => {
+        router.back();
+      }, 100);
     } catch (error) {
       console.error("Error submitting entry:", error);
       alert("Failed to process your diary entry. Please try again.");
@@ -198,8 +207,16 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
     }
   };
 
+  if (isPending) {
+    return <div className="w-full max-w-md h-32 bg-muted/50 animate-pulse rounded-full mx-auto" />;
+  }
+  if (!session) {
+    return null; // 非ログイン時はUIを出さない
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center p-10 bg-card/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 dark:border-white/5 mt-6 relative overflow-hidden transition-all duration-300 hover:shadow-primary/5 w-full max-w-lg">
+    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto relative">
+      <div className="flex flex-col items-center justify-center p-10 bg-card/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 dark:border-white/5 relative overflow-hidden transition-all duration-300 hover:shadow-primary/5 w-full max-w-lg">
       <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
       
       <h2 className="text-2xl font-semibold mb-3 text-foreground tracking-tight z-10">Record your reflection</h2>
@@ -272,6 +289,7 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
             {llmProgress && <p className="text-xs text-muted-foreground w-full max-w-sm mt-1">{llmProgress}</p>}
           </div>
         )}
+      </div>
       </div>
     </div>
   );
