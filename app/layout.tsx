@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono, Noto_Sans } from "next/font/google"
+import type { Metadata } from "next"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -11,6 +12,22 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  title: "Blueflare",
+  description: "Capture your thoughts and reflections with our AI Voice Diary.",
+  openGraph: {
+    title: "Blueflare - AI Voice Diary",
+    description: "Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.",
+    siteName: "Blueflare",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Blueflare - AI Voice Diary",
+    description: "Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.",
+  },
+};
 
 export default function RootLayout({
   children,
