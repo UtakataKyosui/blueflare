@@ -32,7 +32,9 @@ export function SignupForm() {
         return;
       }
 
+      // 1. ホームへ遷移 (Parallel Routeのインターセプトを解除するため)
       router.push("/");
+      // 2. サーバーサイドの全ステータスを強制リフレッシュ (Cookieの反映を確実にする)
       router.refresh();
     } catch {
       setError("予期しないエラーが発生しました");
