@@ -28,20 +28,24 @@ function LoginForm() {
     setError(null);
     setLoading(true);
 
-    const { error } = await signIn.email({
-      email,
-      password,
-      callbackURL,
-    });
+    try {
+      const { error } = await signIn.email({
+        email,
+        password,
+        callbackURL,
+      });
 
-    if (error) {
-      setError(error.message ?? "ログインに失敗しました");
+      if (error) {
+        setError(error.message ?? "ログインに失敗しました");
+        return;
+      }
+
+      router.push(callbackURL);
+    } catch {
+      setError("予期しないエラーが発生しました");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setLoading(false);
-    router.push(callbackURL);
   }
 
   return (

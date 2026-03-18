@@ -20,20 +20,24 @@ export default function SignupPage() {
     setError(null);
     setLoading(true);
 
-    const { error } = await signUp.email({
-      name,
-      email,
-      password,
-    });
+    try {
+      const { error } = await signUp.email({
+        name,
+        email,
+        password,
+      });
 
-    if (error) {
-      setError(error.message ?? "登録に失敗しました");
+      if (error) {
+        setError(error.message ?? "登録に失敗しました");
+        return;
+      }
+
+      router.push("/");
+    } catch {
+      setError("予期しないエラーが発生しました");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setLoading(false);
-    router.push("/");
   }
 
   return (
@@ -83,6 +87,7 @@ export default function SignupPage() {
               minLength={8}
               className="rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
+            <p className="text-xs text-muted-foreground">8文字以上で入力してください</p>
           </div>
           {error && (
             <p className="text-sm text-destructive">{error}</p>
