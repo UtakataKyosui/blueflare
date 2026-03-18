@@ -28,7 +28,7 @@ export default function SignupPage() {
       });
 
       if (error) {
-        setError(error.message ?? "登録に失敗しました");
+        setError(error.message ?? `登録に失敗しました (code: ${error.code ?? "unknown"}, status: ${error.status ?? "unknown"})`);
         return;
       }
 

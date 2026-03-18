@@ -5,6 +5,8 @@ import { getDb } from "./db/drizzle";
 
 export const getAuth = cache(() =>
   betterAuth({
+    secret: process.env.BETTER_AUTH_SECRET,
+    baseURL: process.env.BETTER_AUTH_URL,
     database: drizzleAdapter(getDb(), {
       provider: "sqlite",
     }),
