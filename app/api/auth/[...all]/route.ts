@@ -5,10 +5,9 @@ export const dynamic = "force-dynamic";
 
 export const GET = (req: Request) => toNextJsHandler(getAuth()).GET(req);
 export const POST = async (req: Request) => {
-  try {
-    return await toNextJsHandler(getAuth()).POST(req);
-  } catch (e) {
-    console.error("[auth] POST error:", e);
-    throw e;
+  const res = await toNextJsHandler(getAuth()).POST(req);
+  if (res.status >= 500) {
+    console.error("[auth] POST 500 body:", await res.clone().text());
   }
+  return res;
 };
