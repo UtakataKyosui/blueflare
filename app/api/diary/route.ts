@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const text = formData.get("text") as string;
+    const sentimentRaw = formData.get("sentiment") as string;
     if (!text || text.trim() === "") {
       return NextResponse.json({ error: "No transcription text provided" }, { status: 400 });
     }
@@ -23,14 +24,9 @@ export async function POST(req: NextRequest) {
     const { env } = getCloudflareContext();
 
     console.log("Transcription received from client:", text);
+    console.log("Sentiment received from client:", sentimentRaw);
 
-    // 2. Sentiment Analysis
-    console.log("Starting sentiment analysis...");
-    const sentimentResult = await env.AI.run("@cf/huggingface/distilbert-sst-2-int8" as any, {
-      text,
-    });
-    const sentiment = JSON.stringify(sentimentResult);
-    console.log("Sentiment successful:", sentiment);
+    const sentiment = sentimentRaw || "[]";
 
     // 3. Reflection
     console.log("Starting reflection generation...");

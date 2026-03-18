@@ -44,8 +44,15 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
   const [isEditing, setIsEditing] = useState(false);
   const [transcript, setTranscript] = useState("");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const workerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      workerRef.current = new Worker(new URL("../lib/sentiment-worker.ts", import.meta.url), {
+        type: 'module',
+      });
+    }
+
     // Initialize Web Speech API
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -75,7 +82,27 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
     } else {
       console.warn("Web Speech API is not supported in this browser.");
     }
+
+    return () => {
+      workerRef.current?.terminate();
+    };
   }, []);
+
+  const analyzeSentiment = (text: string): Promise<any> => {
+    return new Promise((resolve) => {
+      if (!workerRef.current) return resolve([{ label: "UNKNOWN", score: 0 }]);
+      
+      workerRef.current.onmessage = (e) => {
+        if (e.data.status === 'success') {
+          resolve(e.data.result);
+        } else if (e.data.status === 'error') {
+          console.error("Sentiment analysis error:", e.data.error);
+          resolve([{ label: "UNKNOWN", score: 0 }]);
+        }
+      };
+      workerRef.current.postMessage({ text });
+    });
+  };
 
   const startRecording = () => {
     if (!recognitionRef.current) {
@@ -107,8 +134,11 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
       return;
     }
     try {
+      const sentiment = await analyzeSentiment(text);
+
       const formData = new FormData();
       formData.append("text", text);
+      formData.append("sentiment", JSON.stringify(sentiment));
 
       const response = await fetch("/api/diary", {
         method: "POST",
