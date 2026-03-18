@@ -1,2 +1,5 @@
 /node_modules
 /.pnpm-store
+/.open-next
+/.pnpm-store
+/.wrangler
