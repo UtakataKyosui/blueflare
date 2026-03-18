@@ -1,54 +1,114 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
+
+// Web Speech API interfaces
+interface SpeechRecognitionEvent {
+  results: {
+    [index: number]: {
+      [index: number]: { transcript: string };
+      isFinal: boolean;
+    };
+    length: number;
+  };
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: any) => void;
+  onend: () => void;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: {
+      new (): SpeechRecognition;
+    };
+    webkitSpeechRecognition: {
+      new (): SpeechRecognition;
+    };
+  }
+}
 
 export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<BlobPart[]>([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      chunksRef.current = [];
+  useEffect(() => {
+    // Initialize Web Speech API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "ja-JP"; // Default to Japanese, can be configured later
 
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunksRef.current.push(e.data);
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        let currentTranscript = "";
+        for (let i = 0; i < event.results.length; i++) {
+          currentTranscript += event.results[i][0].transcript;
         }
+        setTranscript(currentTranscript);
       };
 
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
-        await processAudio(audioBlob);
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error", event.error);
+        setIsRecording(false);
       };
 
-      mediaRecorder.start();
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+
+      recognitionRef.current = recognition;
+    } else {
+      console.warn("Web Speech API is not supported in this browser.");
+    }
+  }, []);
+
+  const startRecording = () => {
+    if (!recognitionRef.current) {
+      alert("お使いのブラウザは音声認識に対応していません。（Chrome や Safari などの最新ブラウザをお試しください）");
+      return;
+    }
+    try {
+      setTranscript("");
+      recognitionRef.current.start();
       setIsRecording(true);
+      setIsEditing(false);
     } catch (err) {
-      console.error("Error accessing microphone:", err);
-      alert("Microphone access is required to record your diary entry.");
+      console.error("Error starting speech recognition:", err);
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+  const stopRecording = async () => {
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
       setIsRecording(false);
-      setIsProcessing(true);
+      setIsEditing(true);
     }
   };
 
-  const processAudio = async (blob: Blob) => {
+  const processTranscription = async (text: string) => {
+    if (!text || text.trim() === "") {
+      alert("音声をうまく聞き取れませんでした。もう一度お試しください！");
+      setIsProcessing(false);
+      return;
+    }
     try {
       const formData = new FormData();
-      formData.append("audio", blob, "recording.webm");
+      formData.append("text", text);
 
       const response = await fetch("/api/diary", {
         method: "POST",
@@ -56,9 +116,10 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to process audio");
+        throw new Error("Failed to process text");
       }
 
+      setTranscript("");
       onEntryAdded();
     } catch (error) {
       console.error("Error submitting entry:", error);
@@ -77,6 +138,29 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
         Tap the microphone and start speaking. When you're finished, we'll process your thoughts into a beautiful entry.
       </p>
 
+      <div className="w-full mb-8 z-10 relative">
+        {isEditing ? (
+          <div className="flex flex-col gap-4">
+            <textarea
+              className="w-full min-h-[120px] bg-black/5 dark:bg-white/5 border border-primary/20 rounded-xl p-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-y"
+              value={transcript}
+              onChange={(e) => setTranscript(e.target.value)}
+              placeholder="認識されたテキストをここで手直しできます..."
+            />
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline" onClick={() => { setIsEditing(false); setTranscript(""); }}>キャンセル</Button>
+              <Button onClick={() => { setIsEditing(false); setIsProcessing(true); processTranscription(transcript); }}>保存して分析する</Button>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full min-h-[60px] bg-black/5 dark:bg-white/5 rounded-xl p-4 flex items-center justify-center text-center">
+            <p className="text-sm text-foreground/80 break-words w-full">
+              {transcript || (isRecording ? "Listening..." : "Your words will appear here")}
+            </p>
+          </div>
+        )}
+      </div>
+
       <div className="relative flex items-center justify-center z-10 h-32 w-32">
         {isRecording && (
           <>
@@ -85,7 +169,7 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
           </>
         )}
         
-        {!isRecording && !isProcessing ? (
+        {!isRecording && !isProcessing && !isEditing ? (
           <Button
             size="lg"
             className="relative rounded-full w-24 h-24 bg-primary hover:bg-primary/90 transition-all duration-300 active:scale-95 shadow-xl hover:shadow-primary/50"
@@ -102,11 +186,11 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
           >
             <Square className="w-10 h-10" />
           </Button>
-        ) : (
+        ) : isProcessing ? (
           <Button disabled size="lg" className="relative rounded-full w-24 h-24 bg-muted text-muted-foreground border-white/10">
             <Loader2 className="w-10 h-10 animate-spin" />
           </Button>
-        )}
+        ) : null}
       </div>
       
       <div className="h-8 mt-6 z-10">

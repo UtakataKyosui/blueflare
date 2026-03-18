@@ -10,7 +10,7 @@
     "lint": "eslint",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
-    "preview": "sh scripts/opennext.sh build && bunx wrangler dev --ip 0.0.0.0",
+    "preview": "sh scripts/opennext.sh build && bunx wrangler dev --ip 0.0.0.0 --remote",
     "deploy": "sh scripts/opennext.sh build && sh scripts/opennext.sh deploy",
     "upload": "sh scripts/opennext.sh build && sh scripts/opennext.sh upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
