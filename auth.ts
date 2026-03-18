@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { cache } from "react";
 import { getDb } from "./db/drizzle";
+import * as schema from "./db/schema";
 
 export const getAuth = cache(() =>
   betterAuth({
@@ -10,6 +11,7 @@ export const getAuth = cache(() =>
     database: drizzleAdapter(getDb(), {
       provider: "sqlite",
       useDatabaseTransactions: false,
+      schema,
     }),
     emailAndPassword: {
       enabled: true,
