@@ -17,33 +17,18 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const text = formData.get("text") as string;
     const sentimentRaw = formData.get("sentiment") as string;
+    const reflectionRaw = formData.get("reflection") as string;
     if (!text || text.trim() === "") {
       return NextResponse.json({ error: "No transcription text provided" }, { status: 400 });
     }
 
-    const { env } = getCloudflareContext();
+    // const { env } = getCloudflareContext(); // Not needed anymore for AI
 
     console.log("Transcription received from client:", text);
     console.log("Sentiment received from client:", sentimentRaw);
 
     const sentiment = sentimentRaw || "[]";
-
-    // 3. Reflection
-    console.log("Starting reflection generation...");
-    const messages = [
-      { role: "system", content: "You are a thoughtful and empathetic diary companion. Listen to the user's daily reflection and respond with a short, encouraging summary or insight in Japanese." },
-      { role: "user", content: text }
-    ];
-    const reflectionResult = (await env.AI.run("@cf/meta/llama-3.1-8b-instruct" as any, {
-      messages,
-    })) as { response: string };
-    
-    if (!reflectionResult || !reflectionResult.response) {
-      console.error("Reflection failed:", reflectionResult);
-      throw new Error("Reflection failed");
-    }
-    const reflection = reflectionResult.response;
-    console.log("Reflection successful:", reflection);
+    const reflection = reflectionRaw || "振り返りを生成できませんでした。";
 
     // 4. Save to DB
     console.log("Saving to database...");

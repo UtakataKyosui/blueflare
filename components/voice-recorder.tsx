@@ -43,12 +43,17 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [llmProgress, setLlmProgress] = useState<string>("");
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const workerRef = useRef<Worker | null>(null);
+  const reflectionWorkerRef = useRef<Worker | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       workerRef.current = new Worker(new URL("../lib/sentiment-worker.ts", import.meta.url), {
+        type: 'module',
+      });
+      reflectionWorkerRef.current = new Worker(new URL("../lib/reflection-worker.ts", import.meta.url), {
         type: 'module',
       });
     }
@@ -85,6 +90,7 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
 
     return () => {
       workerRef.current?.terminate();
+      reflectionWorkerRef.current?.terminate();
     };
   }, []);
 
@@ -101,6 +107,33 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
         }
       };
       workerRef.current.postMessage({ text });
+    });
+  };
+
+  const analyzeReflection = (text: string): Promise<string> => {
+    return new Promise((resolve) => {
+      if (!reflectionWorkerRef.current) return resolve("AIからの振り返りを生成できませんでした。");
+
+      reflectionWorkerRef.current.onmessage = (e) => {
+        const data = e.data;
+        if (data.status === 'success') {
+          resolve(data.result);
+        } else if (data.status === 'error') {
+          console.error("Reflection analysis error:", data.error);
+          resolve("エラーが発生したため振り返りを生成できませんでした。");
+        } else if (data.status === 'loading') {
+          setLlmProgress(data.message);
+        } else if (data.status === 'progress') {
+          if (data.data.status === "downloading") {
+            setLlmProgress(`${data.data.file} をダウンロード中... ${Math.round(data.data.progress || 0)}%`);
+          } else if (data.data.status === "done") {
+            setLlmProgress(`${data.data.file} ダウンロード完了`);
+          }
+        } else if (data.status === 'generating') {
+          setLlmProgress("ユーザーの日記に基づいて振り返りを生成しています...");
+        }
+      };
+      reflectionWorkerRef.current.postMessage({ text });
     });
   };
 
@@ -134,11 +167,16 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
       return;
     }
     try {
+      setLlmProgress("感情分析を実行中...");
       const sentiment = await analyzeSentiment(text);
+      
+      setLlmProgress("振り返りの生成を開始します...");
+      const reflection = await analyzeReflection(text);
 
       const formData = new FormData();
       formData.append("text", text);
       formData.append("sentiment", JSON.stringify(sentiment));
+      formData.append("reflection", reflection);
 
       const response = await fetch("/api/diary", {
         method: "POST",
@@ -150,6 +188,7 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
       }
 
       setTranscript("");
+      setLlmProgress("");
       onEntryAdded();
     } catch (error) {
       console.error("Error submitting entry:", error);
@@ -223,9 +262,16 @@ export function VoiceRecorder({ onEntryAdded }: { onEntryAdded: () => void }) {
         ) : null}
       </div>
       
-      <div className="h-8 mt-6 z-10">
+      <div className="min-h-8 mt-6 z-10 flex flex-col items-center justify-center text-center">
         {isRecording && <p className="text-sm font-medium text-destructive animate-pulse">Recording your voice...</p>}
-        {isProcessing && <p className="text-sm font-medium text-primary animate-pulse flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> Processing with Cloudflare AI...</p>}
+        {isProcessing && (
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-sm font-medium text-primary animate-pulse flex items-center gap-2 mt-2">
+              <Loader2 className="w-4 h-4 animate-spin"/> Processing with Local AI...
+            </p>
+            {llmProgress && <p className="text-xs text-muted-foreground w-full max-w-sm mt-1">{llmProgress}</p>}
+          </div>
+        )}
       </div>
     </div>
   );
