@@ -46,11 +46,11 @@ export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryC
   );
 
   return (
-    <Card className="w-full bg-card/40 backdrop-blur-xl border-white/10 dark:border-white/5 shadow-2xl">
+    <Card className="w-full h-full bg-card/40 backdrop-blur-xl border-white/10 dark:border-white/5 shadow-2xl flex flex-col">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium text-center">記録カレンダー</CardTitle>
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className="p-4 flex-1 flex flex-col">
         <Calendar
           mode="single"
           selected={selectedDate}
