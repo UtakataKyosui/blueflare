@@ -50,7 +50,7 @@ export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryC
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium text-center">記録カレンダー</CardTitle>
       </CardHeader>
-      <CardContent className="flex justify-center p-4">
+      <CardContent className="p-4">
         <Calendar
           mode="single"
           selected={selectedDate}
