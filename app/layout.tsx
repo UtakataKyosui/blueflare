@@ -14,8 +14,10 @@ const fontMono = Geist_Mono({
 
 export default function RootLayout({
   children,
+  modal,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   return (
     <html
@@ -27,6 +29,7 @@ export default function RootLayout({
         <ThemeProvider>
           <Header />
           {children}
+          {modal}
         </ThemeProvider>
       </body>
     </html>
