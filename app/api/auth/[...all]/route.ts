@@ -1,4 +1,7 @@
-import { auth } from "@/auth"; // path to your auth file
+import { getAuth } from "@/auth";
 import { toNextJsHandler } from "better-auth/next-js";
 
-export const { POST, GET } = toNextJsHandler(auth);
+export const dynamic = "force-dynamic";
+
+export const GET = (req: Request) => toNextJsHandler(getAuth()).GET(req);
+export const POST = (req: Request) => toNextJsHandler(getAuth()).POST(req);
