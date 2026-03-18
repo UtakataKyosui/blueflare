@@ -1,0 +1,10 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspaces/sandbox:cached
+    command: sleep infinity
+    security_opt:
+      - no-new-privileges:false
