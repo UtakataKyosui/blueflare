@@ -54,3 +54,15 @@ export const verification = sqliteTable("verification", {
   createdAt: integer("created_at", { mode: "timestamp" }),
   updatedAt: integer("updated_at", { mode: "timestamp" }),
 });
+
+export const diaryEntries = sqliteTable("diary_entries", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  transcription: text("transcription").notNull(),
+  sentiment: text("sentiment").notNull(),
+  reflection: text("reflection").notNull(),
+  audioUrl: text("audio_url"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
