@@ -12,15 +12,23 @@ export function DiaryDashboard() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">AI Voice Diary</h1>
-        <p className="text-muted-foreground">Record your thoughts and let our AI provide reflections.</p>
+    <div className="w-full max-w-4xl mx-auto space-y-12">
+      <div className="text-center space-y-6 pt-10 pb-4">
+        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
+          AI Voice Diary
+        </h1>
+        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+          Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.
+        </p>
       </div>
       
-      <VoiceRecorder onEntryAdded={handleEntryAdded} />
+      <div className="relative z-10 w-full flex justify-center">
+        <VoiceRecorder onEntryAdded={handleEntryAdded} />
+      </div>
       
-      <DiaryList refreshKey={refreshKey} />
+      <div className="relative z-10 mt-16 pb-20">
+        <DiaryList refreshKey={refreshKey} />
+      </div>
     </div>
   );
 }
