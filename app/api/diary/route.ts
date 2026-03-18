@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     // 1. Transcription
     const audioBuffer = await audioFile.arrayBuffer();
     const transcriptionResult = (await env.AI.run("@cf/openai/whisper-large-v3-turbo" as any, {
-      audio: [...new Uint8Array(audioBuffer)] as any,
+      audio: new Uint8Array(audioBuffer) as any,
     })) as { text: string };
     
     const text = transcriptionResult.text;

@@ -25,6 +25,13 @@ export default function RootLayout({
       suppressHydrationWarning
       className={cn("antialiased", fontMono.variable, "font-sans", notoSans.variable)}
     >
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.__name = window.__name || ((n, f) => f);`,
+          }}
+        />
+      </head>
       <body>
         <ThemeProvider>
           <Header />
