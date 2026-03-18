@@ -41,7 +41,6 @@
 			"database_name": "blueflare-d1",
 			"database_id": "e56d545c-2047-4e88-ae0e-8b824d7e749a",
 			"migrations_dir": "db/migrations"
-			// "remote": true
 		}
 	]
 }
