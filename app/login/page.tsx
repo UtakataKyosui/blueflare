@@ -6,10 +6,17 @@ import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+function getSafeCallbackURL(raw: string | null): string {
+  if (!raw) return "/";
+  // Must start with / but not // (protocol-relative URL)
+  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  return "/";
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackURL = searchParams.get("callbackURL") ?? "/";
+  const callbackURL = getSafeCallbackURL(searchParams.get("callbackURL"));
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +40,7 @@ function LoginForm() {
       return;
     }
 
+    setLoading(false);
     router.push(callbackURL);
   }
 
@@ -89,7 +97,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense>
+    <Suspense fallback={<div className="flex min-h-svh items-center justify-center p-6" />}>
       <LoginForm />
     </Suspense>
   );
