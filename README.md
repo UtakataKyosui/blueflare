@@ -54,3 +54,55 @@ bun run preview
 - **個人利用の目安**: 個人向けの日記アプリ（1日数十回のテキスト生成・感情分析）であれば、この1万ニューロンの無料枠内に余裕で収まるため、**実質無料**で運用可能です。
 - **無料枠の超過**: 無料枠（1万ニューロン）を超えて利用する場合、Cloudflareの有料プラン（Workers Paid: 月額$5〜）への加入が必要です。有料プラン加入時の超過分は「1,000 ニューロンあたり 約 $0.011（約1.5円）」の従量課金となります。
 - **安全な設計**: 有料プラン未加入の場合、1日の無料枠に達すると自動的にリクエストが制限されるため、意図しない高額請求が発生する心配はありません。
+
+---
+
+## トラブルシューティング
+
+### `pnpm run deploy` が何も表示せずハングする
+
+**症状**: デプロイコマンドを実行すると `OpenNext — Cloudflare deploy` のヘッダーが表示された後、何も出力されずプロセスが止まる。
+
+**原因**: `@opennextjs/cloudflare` の deploy フェーズは内部で `wrangler` の `getPlatformProxy()` を呼び出し、Node.js IPC (プロセス間通信) で workerd と通信する。このプロジェクトではビルドを **Bun** で実行しているが、**Bun の Node.js 互換実装では wrangler の workerd IPC が正常に動作せずハングする**。
+
+**なぜ Bun を使っているのか**: Node.js v22+ は `cpSync` を virtiofs マウント上で実行すると失敗するバグがある。Bun は独自の fs 実装を持つためこのバグを回避できる。ただしこれは **build フェーズのみの問題**。
+
+**解決策**: `scripts/opennext.sh` で build と deploy を使い分ける。
+
+```sh
+case "$1" in
+  deploy|populateCache)
+    exec "$NODE" "$CLI" "$@"   # deploy は Node.js
+    ;;
+  *)
+    exec "$BUN" run "$CLI" "$@"  # build は Bun
+    ;;
+esac
+```
+
+このプロジェクトの `scripts/opennext.sh` は既にこの分岐を実装済み。
+
+**デバッグ方法**: ハング中に `ps aux | grep "bun\|wrangler\|workerd"` を実行すると、Bun プロセスと複数の workerd プロセスが起動したまま止まっている状態が確認できる（wrangler CLI プロセスは存在しない）。これが `getPlatformProxy` でのハングのサインとなる。
+
+### `pnpm run preview` でローカル環境が起動しない / AI 機能がハングする
+
+**症状**: `wrangler dev`（ローカルモード）でプレビューを起動すると、AI 関連の処理でハングするか、Cloudflare Workers AI の呼び出しが失敗する。
+
+**原因**: `wrangler.jsonc` の AI バインディングに `"remote": true` が設定されている。`wrangler dev` をローカルモード（`--remote` なし）で起動すると、miniflare がこのリモート AI バインディングをローカルでシミュレートしようとするが、ローカルで Cloudflare Workers AI を再現することはできないためハングや失敗が発生する。
+
+```jsonc
+// wrangler.jsonc
+"ai": {
+    "binding": "AI",
+    "remote": true   // ← ローカルモードでは扱えない
+}
+```
+
+**解決策**: `wrangler dev` に `--remote` フラグを付けて起動する。これにより D1・R2・AI を含むすべてのバインディングが実際の Cloudflare リソースに接続され、ローカル環境でも本番同様に動作する。
+
+```bash
+# package.json の preview スクリプト（対策済み）
+"preview": "sh scripts/opennext.sh build && bunx wrangler dev --ip 0.0.0.0 --remote"
+```
+
+**注意**: `--remote` モードでは実際の Cloudflare リソース（D1 データベース、R2 バケット、Workers AI）を使用するため、Workers AI のニューロン消費や D1 への書き込みが本番環境に影響する点に注意すること。
