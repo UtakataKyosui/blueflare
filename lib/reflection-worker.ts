@@ -4,19 +4,30 @@ env.allowLocalModels = false;
 env.useBrowserCache = true;
 
 let generator: any = null;
+let loadingPromise: Promise<any> | null = null;
+
+async function getGenerator() {
+  if (generator) return generator;
+  if (!loadingPromise) {
+    self.postMessage({ status: 'loading', message: 'ロード中: 振り返り用AIモデル (初回のみ数分・数百MBの通信が発生します)' });
+    loadingPromise = pipeline("text-generation", "Xenova/Qwen1.5-0.5B-Chat", {
+      progress_callback: (x: any) => {
+        self.postMessage({ status: 'progress', data: x });
+      }
+    }).then(p => { generator = p; return p; });
+  }
+  return loadingPromise;
+}
 
 self.addEventListener("message", async (event) => {
-  const { text } = event.data;
+  const { text, type } = event.data;
 
   try {
-    if (!generator) {
-      self.postMessage({ status: 'loading', message: 'ロード中: 振り返り用AIモデル (初回のみ数分・数百MBの通信が発生します)' });
-      
-      generator = await pipeline("text-generation", "Xenova/Qwen1.5-0.5B-Chat", {
-        progress_callback: (x: any) => {
-          self.postMessage({ status: 'progress', data: x });
-        }
-      });
+    const gen = await getGenerator();
+
+    if (type === 'warmup') {
+      self.postMessage({ status: 'ready' });
+      return;
     }
 
     self.postMessage({ status: 'generating' });
@@ -26,12 +37,12 @@ self.addEventListener("message", async (event) => {
       { role: "user", content: text }
     ];
 
-    const prompt = await generator.tokenizer.apply_chat_template(messages, {
+    const prompt = await gen.tokenizer.apply_chat_template(messages, {
       tokenize: false,
       add_generation_prompt: true,
     });
 
-    const output = await generator(prompt, {
+    const output = await gen(prompt, {
       max_new_tokens: 150,
       temperature: 0.7,
       do_sample: true,

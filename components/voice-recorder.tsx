@@ -150,6 +150,9 @@ export function VoiceRecorder({ initialDate }: { initialDate: string }) {
       recognitionRef.current.start();
       setIsRecording(true);
       setIsEditing(false);
+      // 録音中にバックグラウンドでAIモデルをプリロードしておく
+      workerRef.current?.postMessage({ type: 'warmup' });
+      reflectionWorkerRef.current?.postMessage({ type: 'warmup' });
     } catch (err) {
       console.error("Error starting speech recognition:", err);
     }

@@ -5,19 +5,30 @@ env.allowLocalModels = false;
 env.useBrowserCache = true;
 
 let sentimentPipeline: any = null;
+let loadingPromise: Promise<any> | null = null;
+
+async function getPipeline() {
+  if (sentimentPipeline) return sentimentPipeline;
+  if (!loadingPromise) {
+    self.postMessage({ status: 'loading' });
+    loadingPromise = pipeline("sentiment-analysis", "Xenova/distilbert-base-uncased-finetuned-sst-2-english")
+      .then(p => { sentimentPipeline = p; return p; });
+  }
+  return loadingPromise;
+}
 
 self.addEventListener("message", async (event) => {
-  const { text } = event.data;
-  
+  const { text, type } = event.data;
+
   try {
-    if (!sentimentPipeline) {
-      // Transformer.js を用いてブラウザ側で軽量感情分析モデルをロード
-      self.postMessage({ status: 'loading' });
-      sentimentPipeline = await pipeline("sentiment-analysis", "Xenova/distilbert-base-uncased-finetuned-sst-2-english");
+    const pipe = await getPipeline();
+
+    if (type === 'warmup') {
+      self.postMessage({ status: 'ready' });
+      return;
     }
-    
-    // 推論を実行
-    const result = await sentimentPipeline(text);
+
+    const result = await pipe(text);
     self.postMessage({ status: 'success', result });
   } catch (error) {
     self.postMessage({ status: 'error', error: String(error) });
