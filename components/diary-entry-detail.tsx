@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
+import { DeleteEntryButton } from "@/components/delete-entry-button";
 
 type DiaryEntry = {
   id: string;
@@ -32,6 +33,9 @@ export function DiaryEntryDetail({ entry }: { entry: DiaryEntry }) {
   return (
     <div className="flex flex-col gap-6 w-full text-foreground/90 py-2">
       <div className="flex flex-col items-center gap-2 mb-4 border-b border-black/10 dark:border-white/10 pb-6">
+        <div className="flex w-full justify-end">
+          <DeleteEntryButton entryId={entry.id} />
+        </div>
         <span className="text-sm font-medium text-muted-foreground">
           {format(new Date(entry.createdAt), "MMMM d, yyyy • h:mm a")}
         </span>
