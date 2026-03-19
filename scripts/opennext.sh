@@ -26,9 +26,17 @@ else
 fi
 
 # Use Bun for build (cpSync workaround), Node.js for deploy (wrangler IPC)
+# For build: pass --skipNextBuild since `next build` was already run by npm run build
 case "$1" in
   deploy|populateCache)
     exec "$NODE" "$CLI" "$@"
+    ;;
+  build)
+    if [ -n "$BUN" ]; then
+      exec "$BUN" run "$CLI" build --skipNextBuild "${@:2}"
+    else
+      exec "$NODE" "$CLI" build --skipNextBuild "${@:2}"
+    fi
     ;;
   *)
     if [ -n "$BUN" ]; then
