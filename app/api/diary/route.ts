@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const text = formData.get("text") as string;
+    const text = formData.get("transcription") as string;
     const sentimentRaw = formData.get("sentiment") as string;
     const reflectionRaw = formData.get("reflection") as string;
     const dateStr = formData.get("date") as string;
