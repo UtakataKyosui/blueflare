@@ -5,11 +5,14 @@
 #         IPC that is incompatible with Bun, causing a hang.
 
 NODE="${NODE:-node}"
-# Resolve Bun: proto shim → system bun → fallback to Node.js
-if [ -x "${BUN:-${HOME}/.proto/shims/bun}" ]; then
-  BUN="${BUN:-${HOME}/.proto/shims/bun}"
-else
-  BUN=$(command -v bun 2>/dev/null || echo "")
+# Resolve Bun: proto shim → system bun → fallback to empty (use Node.js)
+if [ -z "$BUN" ]; then
+  PROTO_BUN="${HOME}/.proto/shims/bun"
+  if [ -x "$PROTO_BUN" ]; then
+    BUN="$PROTO_BUN"
+  else
+    BUN=$(command -v bun 2>/dev/null || true)
+  fi
 fi
 
 # Resolve CLI entry point (npm/yarn/bun direct path first, pnpm store path fallback)
