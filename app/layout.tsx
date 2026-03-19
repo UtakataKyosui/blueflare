@@ -14,9 +14,7 @@ const fontMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://blueflare.fill-ayaextech.workers.dev"
-  ),
+  metadataBase: new URL("https://blueflare.fill-ayaextech.workers.dev"),
   title: "Blueflare",
   description: "Capture your thoughts and reflections with our AI Voice Diary.",
   icons: {

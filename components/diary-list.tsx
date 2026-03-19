@@ -91,7 +91,7 @@ export function DiaryList({ refreshKey, selectedDate }: { refreshKey: number, se
 
           return (
             <Link key={entry.id} href={`/entry/${entry.id}`} passHref>
-              <div className="group cursor-pointer bg-card/60 backdrop-blur-md text-card-foreground p-6 rounded-3xl border border-white/10 dark:border-white/5 shadow-xl hover:shadow-2xl hover:bg-card/80 transition-all duration-300 flex flex-col relative overflow-hidden h-full">
+              <div className="group cursor-pointer bg-card/60 backdrop-blur-md text-card-foreground p-6 rounded-3xl border border-black/10 dark:border-white/10 shadow-xl hover:shadow-2xl hover:bg-card/80 transition-all duration-300 flex flex-col relative overflow-hidden h-full">
                 <div className="absolute top-0 right-0 p-32 bg-primary/5 rounded-full blur-3xl -z-10 group-hover:bg-primary/10 transition-colors" />
                 
                 <div className="flex items-start justify-between mb-4 gap-4">

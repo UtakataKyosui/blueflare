@@ -219,8 +219,8 @@ export function VoiceRecorder({ initialDate }: { initialDate: string }) {
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto relative">
-      <div className="flex flex-col items-center justify-center p-10 bg-card/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 dark:border-white/5 relative overflow-hidden transition-all duration-300 hover:shadow-primary/5 w-full max-w-lg">
-      <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+      <div className="flex flex-col items-center justify-center p-10 bg-card/40 backdrop-blur-xl rounded-3xl shadow-2xl border border-black/10 dark:border-white/10 relative overflow-hidden transition-all duration-300 hover:shadow-primary/5 w-full max-w-lg">
+      <div className="absolute inset-0 bg-gradient-to-b from-black/5 dark:from-white/5 to-transparent pointer-events-none" />
       
       <h2 className="text-2xl font-semibold mb-3 text-foreground tracking-tight z-10">Record your reflection</h2>
       <p className="text-sm text-muted-foreground mb-8 text-center max-w-md z-10 leading-relaxed">

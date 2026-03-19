@@ -46,7 +46,7 @@ export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryC
   );
 
   return (
-    <Card className="w-full bg-card/40 backdrop-blur-xl border-white/10 dark:border-white/5 shadow-2xl">
+    <Card className="w-full bg-card/40 backdrop-blur-xl border-black/10 dark:border-white/10 shadow-2xl">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-medium text-center">記録カレンダー</CardTitle>
       </CardHeader>

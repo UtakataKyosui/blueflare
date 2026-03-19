@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "next build && sh scripts/opennext.sh build",
     "dev": "next dev --turbopack -H 0.0.0.0 -p 8787",
     "start": "next start",
     "lint": "eslint",

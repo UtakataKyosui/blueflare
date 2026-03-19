@@ -15,7 +15,7 @@ export default async function EntryPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-10">
-      <div className="w-full max-w-lg bg-card/40 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl">
+      <div className="w-full max-w-lg bg-card/40 backdrop-blur-xl border border-black/10 dark:border-white/10 p-8 rounded-3xl shadow-2xl">
         <DiaryEntryDetail entry={entry} />
       </div>
     </div>

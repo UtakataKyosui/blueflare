@@ -31,7 +31,7 @@ export function DiaryEntryDetail({ entry }: { entry: DiaryEntry }) {
 
   return (
     <div className="flex flex-col gap-6 w-full text-foreground/90 py-2">
-      <div className="flex flex-col items-center gap-2 mb-4 border-b border-white/10 pb-6">
+      <div className="flex flex-col items-center gap-2 mb-4 border-b border-black/10 dark:border-white/10 pb-6">
         <span className="text-sm font-medium text-muted-foreground">
           {format(new Date(entry.createdAt), "MMMM d, yyyy • h:mm a")}
         </span>
@@ -48,7 +48,7 @@ export function DiaryEntryDetail({ entry }: { entry: DiaryEntry }) {
         </p>
       </div>
       
-      <div className="space-y-4 mt-4 bg-muted/30 p-5 rounded-xl border border-white/5">
+      <div className="space-y-4 mt-4 bg-muted/30 p-5 rounded-xl border border-black/10 dark:border-white/5">
         <h4 className="text-xs font-bold uppercase tracking-wider text-primary">AI Reflection</h4>
         <p className="text-sm font-medium leading-relaxed">
           {entry.reflection}
