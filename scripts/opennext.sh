@@ -32,10 +32,11 @@ case "$1" in
     exec "$NODE" "$CLI" "$@"
     ;;
   build)
+    shift
     if [ -n "$BUN" ]; then
-      exec "$BUN" run "$CLI" build --skipNextBuild "${@:2}"
+      exec "$BUN" run "$CLI" build --skipNextBuild "$@"
     else
-      exec "$NODE" "$CLI" build --skipNextBuild "${@:2}"
+      exec "$NODE" "$CLI" build --skipNextBuild "$@"
     fi
     ;;
   *)
