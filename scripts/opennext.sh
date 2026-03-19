@@ -7,10 +7,15 @@
 BUN="${BUN:-${HOME}/.proto/shims/bun}"
 NODE="${NODE:-node}"
 
-# Resolve CLI entry point from pnpm store
-CLI=$(ls node_modules/.pnpm/@opennextjs+cloudflare*/node_modules/@opennextjs/cloudflare/dist/cli/index.js 2>/dev/null | head -1)
+# Resolve CLI entry point (npm/yarn/bun direct path first, pnpm store path fallback)
+DIRECT_CLI="node_modules/@opennextjs/cloudflare/dist/cli/index.js"
+PNPM_CLI=$(ls node_modules/.pnpm/@opennextjs+cloudflare*/node_modules/@opennextjs/cloudflare/dist/cli/index.js 2>/dev/null | head -1)
 
-if [ -z "$CLI" ]; then
+if [ -f "$DIRECT_CLI" ]; then
+  CLI="$DIRECT_CLI"
+elif [ -n "$PNPM_CLI" ]; then
+  CLI="$PNPM_CLI"
+else
   echo "Error: opennextjs-cloudflare CLI not found in node_modules" >&2
   exit 1
 fi
