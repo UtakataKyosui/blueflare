@@ -20,7 +20,7 @@ export function DiaryList({ refreshKey, selectedDate }: { refreshKey: number, se
     const fetchEntries = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch("/api/diary");
+        const response = await fetch("/api/diary", { cache: "no-store" });
         if (response.ok) {
           const data = (await response.json()) as { entries?: DiaryEntry[] };
           setEntries(data.entries || []);

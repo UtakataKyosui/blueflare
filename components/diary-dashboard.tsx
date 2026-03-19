@@ -54,7 +54,9 @@ export function DiaryDashboard() {
       )}
 
       <div className="relative z-10 mt-16 pb-20">
-        <DiaryList refreshKey={refreshKey} selectedDate={selectedDate} />
+        {session && (
+          <DiaryList refreshKey={refreshKey} selectedDate={selectedDate} />
+        )}
       </div>
     </div>
   );

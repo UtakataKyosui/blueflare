@@ -25,7 +25,7 @@ export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryC
   useEffect(() => {
     const fetchEntries = async () => {
       try {
-        const response = await fetch("/api/diary");
+        const response = await fetch("/api/diary", { cache: "no-store" });
         if (response.ok) {
           const data = (await response.json()) as { entries?: DiaryEntry[] };
           setEntries(data.entries || []);

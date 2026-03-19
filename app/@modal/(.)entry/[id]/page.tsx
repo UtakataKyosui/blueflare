@@ -1,21 +1,29 @@
 import { Modal } from "@/components/modal";
 import { DiaryEntryDetail } from "@/components/diary-entry-detail";
-import { redirect } from "next/navigation";
+import { getDb } from "@/db/drizzle";
+import { diaryEntries } from "@/db/schema";
+import { getAuth } from "@/auth";
+import { headers } from "next/headers";
+import { eq, and } from "drizzle-orm";
 
 export default async function EntryModal({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const id = resolvedParams.id;
 
-  // Ideally, fetch only ONE entry by id. Since we only have a GET all API right now,
-  // we either fetch all and find, or assume the API will handle it.
-  // Using absolute URL isn't safe during build for fetch in app router without localhost prepended.
-  // Instead of fetching server side (which needs base url), we will fetch client side or just use generic placeholder 
-  // until we have a proper DB lookup here or client wrap it.
-  // For simplicity and to reuse the existing GET /api/diary API:
-  const res = await fetch("http://localhost:8787/api/diary", { cache: 'no-store' });
-  if (!res.ok) return <Modal><div className="p-8">Error loading entry.</div></Modal>;
-  const data = (await res.json()) as { entries?: any[] };
-  const entry = data.entries?.find((e: any) => e.id === id);
+  const auth = getAuth();
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return <Modal><div className="p-8">Unauthorized.</div></Modal>;
+  }
+
+  const db = getDb();
+  const results = await db
+    .select()
+    .from(diaryEntries)
+    .where(and(eq(diaryEntries.id, id), eq(diaryEntries.userId, session.user.id)))
+    .limit(1);
+
+  const entry = results[0];
 
   if (!entry) {
     return (
@@ -25,10 +33,15 @@ export default async function EntryModal({ params }: { params: Promise<{ id: str
     );
   }
 
+  const entryForDisplay = {
+    ...entry,
+    createdAt: entry.createdAt.toISOString(),
+  };
+
   return (
     <Modal>
       <div className="py-6 px-4">
-        <DiaryEntryDetail entry={entry} />
+        <DiaryEntryDetail entry={entryForDisplay} />
       </div>
     </Modal>
   );

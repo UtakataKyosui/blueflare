@@ -79,7 +79,9 @@ export async function GET() {
     const db = getDb();
     const entries = await db.select().from(diaryEntries).where(eq(diaryEntries.userId, session.user.id)).orderBy(desc(diaryEntries.createdAt));
 
-    return NextResponse.json({ entries });
+    return NextResponse.json({ entries }, {
+      headers: { "Cache-Control": "no-store" },
+    });
   } catch (error) {
     console.error("Error fetching diary entries:", error);
     return NextResponse.json({ error: "Failed to fetch diary entries" }, { status: 500 });
