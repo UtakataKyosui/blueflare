@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useSession, signOut } from "@/lib/auth-client"
+import { ThemeToggle } from "./theme-toggle"
 
 export function Header() {
   const { data: session, isPending } = useSession()
@@ -21,6 +22,7 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-3 text-sm">
+          <ThemeToggle />
           {isPending ? (
             <span className="text-muted-foreground text-xs">読み込み中...</span>
           ) : session ? (
