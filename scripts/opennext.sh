@@ -4,8 +4,13 @@
 # deploy: Run with Node.js because wrangler's getPlatformProxy uses Node.js
 #         IPC that is incompatible with Bun, causing a hang.
 
-BUN="${BUN:-${HOME}/.proto/shims/bun}"
 NODE="${NODE:-node}"
+# Resolve Bun: proto shim → system bun → fallback to Node.js
+if [ -x "${BUN:-${HOME}/.proto/shims/bun}" ]; then
+  BUN="${BUN:-${HOME}/.proto/shims/bun}"
+else
+  BUN=$(command -v bun 2>/dev/null || echo "")
+fi
 
 # Resolve CLI entry point (npm/yarn/bun direct path first, pnpm store path fallback)
 DIRECT_CLI="node_modules/@opennextjs/cloudflare/dist/cli/index.js"
@@ -26,6 +31,10 @@ case "$1" in
     exec "$NODE" "$CLI" "$@"
     ;;
   *)
-    exec "$BUN" run "$CLI" "$@"
+    if [ -n "$BUN" ]; then
+      exec "$BUN" run "$CLI" "$@"
+    else
+      exec "$NODE" "$CLI" "$@"
+    fi
     ;;
 esac
