@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 function getSafeCallbackURL(raw: string | null): string {
   if (!raw) return "/";
@@ -16,6 +17,7 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackURL = getSafeCallbackURL(searchParams.get("callbackURL"));
+  const t = useTranslations("login");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,14 +37,14 @@ export function LoginForm() {
       });
 
       if (error) {
-        setError(error.message ?? "ログインに失敗しました");
+        setError(error.message ?? t("failedError"));
         return;
       }
 
       router.push(callbackURL);
       router.refresh();
     } catch {
-      setError("予期しないエラーが発生しました");
+      setError(t("unexpectedError"));
     } finally {
       setLoading(false);
     }
@@ -50,11 +52,11 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <h1 className="mb-6 text-2xl font-semibold">ログイン</h1>
+      <h1 className="mb-6 text-2xl font-semibold">{t("title")}</h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
           <label htmlFor="email" className="text-sm font-medium">
-            メールアドレス
+            {t("email")}
           </label>
           <input
             id="email"
@@ -68,7 +70,7 @@ export function LoginForm() {
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="password" className="text-sm font-medium">
-            パスワード
+            {t("password")}
           </label>
           <input
             id="password"
@@ -80,17 +82,15 @@ export function LoginForm() {
             className="rounded-md border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
           />
         </div>
-        {error && (
-          <p className="text-sm text-destructive">{error}</p>
-        )}
+        {error && <p className="text-sm text-destructive">{error}</p>}
         <Button type="submit" disabled={loading}>
-          {loading ? "ログイン中..." : "ログイン"}
+          {loading ? t("submitting") : t("submit")}
         </Button>
       </form>
       <p className="mt-4 text-center text-sm text-muted-foreground">
-        アカウントをお持ちでない方は{" "}
+        {t("noAccount")}{" "}
         <Link href="/signup" replace className="underline underline-offset-4">
-          新規登録
+          {t("signUpLink")}
         </Link>
       </p>
     </div>

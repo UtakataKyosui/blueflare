@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
+import { useTranslations } from "next-intl";
 
 type DiaryEntry = {
   id: string;
@@ -19,8 +20,13 @@ interface DiaryCalendarProps {
   refreshKey: number;
 }
 
-export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryCalendarProps) {
+export function DiaryCalendar({
+  onSelectDate,
+  selectedDate,
+  refreshKey,
+}: DiaryCalendarProps) {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
+  const t = useTranslations("diary");
 
   useEffect(() => {
     const fetchEntries = async () => {
@@ -42,13 +48,15 @@ export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryC
     entries.map((entry) => {
       const date = new Date(entry.createdAt);
       return format(date, "yyyy-MM-dd");
-    })
+    }),
   );
 
   return (
     <Card className="w-full bg-card/40 backdrop-blur-xl border-black/10 dark:border-white/10 shadow-2xl">
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-medium text-center">記録カレンダー</CardTitle>
+        <CardTitle className="text-lg font-medium text-center">
+          {t("calendar")}
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
         <Calendar
@@ -60,7 +68,8 @@ export function DiaryCalendar({ onSelectDate, selectedDate, refreshKey }: DiaryC
             hasEntry: (date) => entryDates.has(format(date, "yyyy-MM-dd")),
           }}
           modifiersClassNames={{
-            hasEntry: "bg-blue-500 text-white font-bold hover:bg-blue-600 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 rounded-md"
+            hasEntry:
+              "bg-blue-500 text-white font-bold hover:bg-blue-600 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-700 rounded-md",
           }}
         />
       </CardContent>

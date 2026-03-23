@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function DeleteEntryButton({ entryId }: { entryId: string }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const t = useTranslations("delete");
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -29,14 +31,14 @@ export function DeleteEntryButton({ entryId }: { entryId: string }) {
   if (confirmOpen) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">本当に削除しますか？</span>
+        <span className="text-sm text-muted-foreground">{t("confirm")}</span>
         <Button
           variant="destructive"
           size="sm"
           onClick={handleDelete}
           disabled={isDeleting}
         >
-          {isDeleting ? "削除中..." : "削除する"}
+          {isDeleting ? t("deleting") : t("delete")}
         </Button>
         <Button
           variant="ghost"
@@ -44,7 +46,7 @@ export function DeleteEntryButton({ entryId }: { entryId: string }) {
           onClick={() => setConfirmOpen(false)}
           disabled={isDeleting}
         >
-          キャンセル
+          {t("cancel")}
         </Button>
       </div>
     );
@@ -58,7 +60,7 @@ export function DeleteEntryButton({ entryId }: { entryId: string }) {
       onClick={() => setConfirmOpen(true)}
     >
       <Trash2 className="w-4 h-4 mr-1.5" />
-      削除
+      {t("button")}
     </Button>
   );
 }
