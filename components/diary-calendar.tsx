@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
-import { useTranslations } from "next-intl";
+import { ja, enUS } from "date-fns/locale";
+import { useTranslations, useLocale } from "next-intl";
 
 type DiaryEntry = {
   id: string;
@@ -27,6 +28,8 @@ export function DiaryCalendar({
 }: DiaryCalendarProps) {
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const t = useTranslations("diary");
+  const locale = useLocale();
+  const dateFnsLocale = locale === "ja" ? ja : enUS;
 
   useEffect(() => {
     const fetchEntries = async () => {
@@ -64,6 +67,7 @@ export function DiaryCalendar({
           selected={selectedDate}
           onSelect={onSelectDate}
           className="rounded-md"
+          locale={dateFnsLocale}
           modifiers={{
             hasEntry: (date) => entryDates.has(format(date, "yyyy-MM-dd")),
           }}

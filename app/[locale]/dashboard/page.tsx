@@ -1,7 +1,7 @@
 export const dynamic = "force-dynamic";
 
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { getAuth } from "@/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
