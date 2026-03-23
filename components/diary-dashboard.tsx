@@ -1,18 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { DiaryList } from "./diary-list";
 import { DiaryCalendar } from "./diary-calendar";
 import { useSession } from "@/lib/auth-client";
 import { format } from "date-fns";
 import { Mic } from "lucide-react";
 import { Button } from "./ui/button";
+import { useTranslations } from "next-intl";
 
 export function DiaryDashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const { data: session } = useSession();
+  const t = useTranslations("diary");
 
   useEffect(() => {
     const handleUpdate = () => setRefreshKey((prev) => prev + 1);
@@ -25,10 +27,10 @@ export function DiaryDashboard() {
     <div className="flex flex-col w-full max-w-4xl mx-auto px-4 sm:px-6 relative">
       <div className="text-center space-y-6 pt-10 pb-4">
         <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
-          AI Voice Diary
+          {t("title")}
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-          Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.
+          {t("description")}
         </p>
       </div>
 
@@ -37,7 +39,11 @@ export function DiaryDashboard() {
       {session && (
         <div className="relative z-10 w-full flex flex-col items-center mt-8 px-4">
           <div className="w-full sm:w-[80%] md:w-[60%] lg:w-[60%] transition-all duration-300">
-            <DiaryCalendar refreshKey={refreshKey} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+            <DiaryCalendar
+              refreshKey={refreshKey}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
           </div>
 
           {selectedDate && (
@@ -45,7 +51,7 @@ export function DiaryDashboard() {
               <Link href={`/record/${format(selectedDate, "yyyy-MM-dd")}`}>
                 <Button className="rounded-full shadow-lg gap-2 text-primary-foreground">
                   <Mic className="w-4 h-4" />
-                  {format(selectedDate, "M/d")} に記録する
+                  {t("recordOn", { date: format(selectedDate, "M/d") })}
                 </Button>
               </Link>
             </div>

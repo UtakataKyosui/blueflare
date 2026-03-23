@@ -1,4 +1,4 @@
-import { Modal } from "@/components/modal";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { DiaryEntryDetail } from "@/components/diary-entry-detail";
 import { getDb } from "@/db/drizzle";
 import { diaryEntries } from "@/db/schema";
@@ -6,14 +6,20 @@ import { getAuth } from "@/auth";
 import { headers } from "next/headers";
 import { eq, and } from "drizzle-orm";
 
-export default async function EntryModal({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = await params;
-  const id = resolvedParams.id;
+export default async function EntryPage({
+  params,
+}: {
+  params: Promise<{ locale: string; id: string }>;
+}) {
+  const { locale, id } = await params;
+  setRequestLocale(locale);
+
+  const t = await getTranslations("entry");
 
   const auth = getAuth();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
-    return <Modal><div className="p-8">Unauthorized.</div></Modal>;
+    return <div className="p-8">{t("unauthorized")}</div>;
   }
 
   const db = getDb();
@@ -27,9 +33,9 @@ export default async function EntryModal({ params }: { params: Promise<{ id: str
 
   if (!entry) {
     return (
-      <Modal>
-        <div className="p-8 text-center text-muted-foreground">Entry not found.</div>
-      </Modal>
+      <div className="p-8 text-center text-muted-foreground">
+        {t("notFound")}
+      </div>
     );
   }
 
@@ -39,10 +45,10 @@ export default async function EntryModal({ params }: { params: Promise<{ id: str
   };
 
   return (
-    <Modal>
-      <div className="py-6 px-4">
+    <div className="container flex items-center justify-center min-h-[calc(100vh-4rem)] py-10">
+      <div className="w-full max-w-lg bg-card/40 backdrop-blur-xl border border-black/10 dark:border-white/10 p-8 rounded-3xl shadow-2xl">
         <DiaryEntryDetail entry={entryForDisplay} />
       </div>
-    </Modal>
+    </div>
   );
 }

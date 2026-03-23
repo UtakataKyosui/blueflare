@@ -1,13 +1,14 @@
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
-import { headers } from "next/headers"
-import { redirect } from "next/navigation"
-import { getAuth } from "@/auth"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { headers } from "next/headers";
+import { redirect } from "@/i18n/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getAuth } from "@/auth";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 function getInitials(name: string): string {
   return name
@@ -15,44 +16,53 @@ function getInitials(name: string): string {
     .split(/\s+/)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .slice(0, 2)
-    .join("")
+    .join("");
 }
 
-function formatDate(date: Date): string {
-  return new Intl.DateTimeFormat("ja-JP", {
+function formatDate(date: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "ja-JP", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(date)
+  }).format(date);
 }
 
-function formatDateTime(date: Date): string {
-  return new Intl.DateTimeFormat("ja-JP", {
+function formatDateTime(date: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "ja-JP", {
     year: "numeric",
     month: "long",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
-  }).format(date)
+  }).format(date);
 }
 
-export default async function DashboardPage() {
-  const auth = getAuth()
-  const session = await auth.api.getSession({ headers: await headers() })
+export default async function DashboardPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+
+  const t = await getTranslations("dashboard");
+
+  const auth = getAuth();
+  const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session) {
-    redirect("/login?callbackURL=/dashboard")
+    redirect("/login?callbackURL=/dashboard");
   }
 
-  const { user } = session
-  const { session: sessionInfo } = session
+  const { user } = session;
+  const { session: sessionInfo } = session;
 
   return (
     <main className="min-h-svh p-6 flex flex-col gap-8 max-w-2xl mx-auto">
       {/* Section: プロフィール */}
       <section className="flex flex-col gap-4">
         <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-          profile
+          {t("profile")}
         </p>
         <Card>
           <CardContent className="pt-6">
@@ -72,9 +82,9 @@ export default async function DashboardPage() {
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 <div className="mt-1">
                   {user.emailVerified ? (
-                    <Badge variant="secondary">メール確認済み</Badge>
+                    <Badge variant="secondary">{t("emailVerified")}</Badge>
                   ) : (
-                    <Badge variant="outline">未確認</Badge>
+                    <Badge variant="outline">{t("emailUnverified")}</Badge>
                   )}
                 </div>
               </div>
@@ -86,18 +96,18 @@ export default async function DashboardPage() {
       {/* Section: アカウント統計 */}
       <section className="flex flex-col gap-4">
         <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-          account
+          {t("account")}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <Card size="sm">
             <CardHeader>
               <CardTitle className="text-xs tracking-wide uppercase text-muted-foreground">
-                登録日
+                {t("registeredAt")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm font-medium">
-                {formatDate(new Date(user.createdAt))}
+                {formatDate(new Date(user.createdAt), locale)}
               </p>
             </CardContent>
           </Card>
@@ -105,14 +115,14 @@ export default async function DashboardPage() {
           <Card size="sm">
             <CardHeader>
               <CardTitle className="text-xs tracking-wide uppercase text-muted-foreground">
-                メール確認
+                {t("emailVerification")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {user.emailVerified ? (
-                <Badge variant="secondary">確認済み</Badge>
+                <Badge variant="secondary">{t("emailVerified")}</Badge>
               ) : (
-                <Badge variant="outline">未確認</Badge>
+                <Badge variant="outline">{t("emailUnverified")}</Badge>
               )}
             </CardContent>
           </Card>
@@ -120,11 +130,11 @@ export default async function DashboardPage() {
           <Card size="sm">
             <CardHeader>
               <CardTitle className="text-xs tracking-wide uppercase text-muted-foreground">
-                アカウント種別
+                {t("accountType")}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Badge variant="secondary">メール / パスワード</Badge>
+              <Badge variant="secondary">{t("emailPassword")}</Badge>
             </CardContent>
           </Card>
         </div>
@@ -133,21 +143,25 @@ export default async function DashboardPage() {
       {/* Section: アクティブセッション */}
       <section className="flex flex-col gap-4">
         <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-          session
+          {t("session")}
         </p>
         <Card>
           <CardContent className="pt-6 flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
-                <p className="text-xs text-muted-foreground">セッション開始</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("sessionStart")}
+                </p>
                 <p className="text-sm font-medium">
-                  {formatDateTime(new Date(sessionInfo.createdAt))}
+                  {formatDateTime(new Date(sessionInfo.createdAt), locale)}
                 </p>
               </div>
               <div className="flex flex-col gap-1">
-                <p className="text-xs text-muted-foreground">有効期限</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("expiresAt")}
+                </p>
                 <p className="text-sm font-medium">
-                  {formatDateTime(new Date(sessionInfo.expiresAt))}
+                  {formatDateTime(new Date(sessionInfo.expiresAt), locale)}
                 </p>
               </div>
             </div>
@@ -155,7 +169,7 @@ export default async function DashboardPage() {
             <Separator />
 
             <div className="flex flex-col gap-1">
-              <p className="text-xs text-muted-foreground">ユーザーエージェント</p>
+              <p className="text-xs text-muted-foreground">{t("userAgent")}</p>
               <p className="font-mono text-xs text-foreground/70 truncate">
                 {sessionInfo.userAgent ?? "—"}
               </p>
@@ -163,7 +177,9 @@ export default async function DashboardPage() {
 
             {sessionInfo.ipAddress && (
               <div className="flex flex-col gap-1">
-                <p className="text-xs text-muted-foreground">IPアドレス</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("ipAddress")}
+                </p>
                 <p className="font-mono text-xs text-foreground/70">
                   {sessionInfo.ipAddress}
                 </p>
@@ -176,21 +192,21 @@ export default async function DashboardPage() {
       {/* Section: クイックアクション */}
       <section className="flex flex-col gap-4">
         <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-          settings
+          {t("settings")}
         </p>
         <Card>
           <CardContent className="pt-6 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
-                <p className="text-sm font-medium">プロフィール編集</p>
+                <p className="text-sm font-medium">{t("editProfile")}</p>
                 <p className="text-xs text-muted-foreground">
-                  名前・アイコンを変更する
+                  {t("editProfileDesc")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline">準備中</Badge>
+                <Badge variant="outline">{t("comingSoon")}</Badge>
                 <Button variant="outline" size="sm" disabled>
-                  編集
+                  {t("edit")}
                 </Button>
               </div>
             </div>
@@ -199,15 +215,15 @@ export default async function DashboardPage() {
 
             <div className="flex items-center justify-between">
               <div className="flex flex-col gap-0.5">
-                <p className="text-sm font-medium">セキュリティ設定</p>
+                <p className="text-sm font-medium">{t("security")}</p>
                 <p className="text-xs text-muted-foreground">
-                  パスワード・2段階認証を管理する
+                  {t("securityDesc")}
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Badge variant="outline">準備中</Badge>
+                <Badge variant="outline">{t("comingSoon")}</Badge>
                 <Button variant="outline" size="sm" disabled>
-                  設定
+                  {t("edit")}
                 </Button>
               </div>
             </div>
@@ -215,5 +231,5 @@ export default async function DashboardPage() {
         </Card>
       </section>
     </main>
-  )
+  );
 }

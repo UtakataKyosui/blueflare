@@ -1,17 +1,15 @@
-import { Geist, Geist_Mono, Noto_Sans } from "next/font/google"
-import type { Metadata } from "next"
-
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { Header } from "@/components/header"
+import { Geist_Mono, Noto_Sans } from "next/font/google";
+import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
+import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const notoSans = Noto_Sans({variable:'--font-sans'})
+const notoSans = Noto_Sans({ variable: "--font-sans" });
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
-})
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://blueflare.fill-ayaextech.workers.dev"),
@@ -22,7 +20,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Blueflare - AI Voice Diary",
-    description: "Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.",
+    description:
+      "Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.",
     siteName: "Blueflare",
     images: [{ url: "/opengraph-image.png" }],
     type: "website",
@@ -30,23 +29,28 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Blueflare - AI Voice Diary",
-    description: "Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.",
+    description:
+      "Speak your mind freely. Let our AI transcribe, analyze your mood, and provide thoughtful reflections.",
     images: ["/twitter-image.png"],
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-  modal,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-  modal: React.ReactNode;
-}>) {
+}) {
+  const locale = await getLocale();
   return (
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
-      className={cn("antialiased", fontMono.variable, "font-sans", notoSans.variable)}
+      className={cn(
+        "antialiased",
+        fontMono.variable,
+        "font-sans",
+        notoSans.variable,
+      )}
     >
       <head>
         <script
@@ -55,13 +59,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
-        <ThemeProvider>
-          <Header />
-          {children}
-          {modal}
-        </ThemeProvider>
-      </body>
+      <body>{children}</body>
     </html>
-  )
+  );
 }
