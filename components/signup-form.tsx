@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 
 export function SignupForm() {
   const router = useRouter();

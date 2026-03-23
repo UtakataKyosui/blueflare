@@ -3,7 +3,8 @@
     "loading": "Loading...",
     "signOut": "Sign Out",
     "signIn": "Sign In",
-    "signUp": "Sign Up"
+    "signUp": "Sign Up",
+    "toggleLanguage": "Toggle language"
   },
   "login": {
     "title": "Sign In",
@@ -87,7 +88,9 @@
     "downloadComplete": "{file} download complete",
     "couldNotHear": "Couldn't hear you clearly. Please try again!",
     "processingFailed": "Failed to process your diary entry. Please try again.",
-    "processingWithAI": "Processing with Local AI..."
+    "processingWithAI": "Processing with Local AI...",
+    "reflectionFailed": "Failed to generate AI reflection.",
+    "reflectionError": "Failed to generate reflection due to an error."
   },
   "delete": {
     "confirm": "Are you sure you want to delete this?",

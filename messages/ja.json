@@ -3,7 +3,8 @@
     "loading": "読み込み中...",
     "signOut": "ログアウト",
     "signIn": "ログイン",
-    "signUp": "新規登録"
+    "signUp": "新規登録",
+    "toggleLanguage": "言語を切り替える"
   },
   "login": {
     "title": "ログイン",
@@ -87,7 +88,9 @@
     "downloadComplete": "{file} ダウンロード完了",
     "couldNotHear": "音声をうまく聞き取れませんでした。もう一度お試しください！",
     "processingFailed": "日記エントリーの処理に失敗しました。もう一度お試しください。",
-    "processingWithAI": "ローカル AI で処理中..."
+    "processingWithAI": "ローカル AI で処理中...",
+    "reflectionFailed": "AIからの振り返りを生成できませんでした。",
+    "reflectionError": "エラーが発生したため振り返りを生成できませんでした。"
   },
   "delete": {
     "confirm": "本当に削除しますか？",

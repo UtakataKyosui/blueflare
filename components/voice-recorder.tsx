@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Mic, Square, Loader2 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
 // Web Speech API interfaces
@@ -125,7 +125,7 @@ export function VoiceRecorder({ initialDate }: { initialDate: string }) {
   const analyzeReflection = (text: string): Promise<string> => {
     return new Promise((resolve) => {
       if (!reflectionWorkerRef.current)
-        return resolve("AIからの振り返りを生成できませんでした。");
+        return resolve(t("reflectionFailed"));
 
       reflectionWorkerRef.current.onmessage = (e) => {
         const data = e.data;
@@ -133,7 +133,7 @@ export function VoiceRecorder({ initialDate }: { initialDate: string }) {
           resolve(data.result);
         } else if (data.status === "error") {
           console.error("Reflection analysis error:", data.error);
-          resolve("エラーが発生したため振り返りを生成できませんでした。");
+          resolve(t("reflectionError"));
         } else if (data.status === "loading") {
           setLlmProgress(data.message);
         } else if (data.status === "progress") {

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { ja, enUS } from "date-fns/locale";
+import { useTranslations, useLocale } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 type DiaryEntry = {
   id: string;
@@ -23,6 +24,8 @@ export function DiaryList({
   const [entries, setEntries] = useState<DiaryEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const t = useTranslations("diary");
+  const locale = useLocale();
+  const dateFnsLocale = locale === "ja" ? ja : enUS;
 
   useEffect(() => {
     const fetchEntries = async () => {
@@ -126,7 +129,7 @@ export function DiaryList({
 
                 <div className="flex items-start justify-between mb-4 gap-4">
                   <span className="text-sm font-medium text-muted-foreground/80">
-                    {format(new Date(entry.createdAt), "MMMM d, yyyy")}
+                    {format(new Date(entry.createdAt), "PPP", { locale: dateFnsLocale })}
                   </span>
                   <span
                     className={`text-xs font-semibold px-3 py-1.5 rounded-full border flex items-center gap-1.5 whitespace-nowrap ${sentimentColor}`}
@@ -143,7 +146,7 @@ export function DiaryList({
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-border/50 flex justify-between items-center text-xs text-muted-foreground opacity-60 group-hover:opacity-100 transition-opacity">
-                  <span>{format(new Date(entry.createdAt), "h:mm a")}</span>
+                  <span>{format(new Date(entry.createdAt), "p", { locale: dateFnsLocale })}</span>
                   <span>{t("viewDetails")}</span>
                 </div>
               </div>

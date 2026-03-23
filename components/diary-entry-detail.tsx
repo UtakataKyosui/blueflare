@@ -1,6 +1,7 @@
 import { format } from "date-fns";
+import { ja, enUS } from "date-fns/locale";
 import { DeleteEntryButton } from "@/components/delete-entry-button";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, getLocale } from "next-intl/server";
 
 type DiaryEntry = {
   id: string;
@@ -12,6 +13,8 @@ type DiaryEntry = {
 
 export async function DiaryEntryDetail({ entry }: { entry: DiaryEntry }) {
   const t = await getTranslations("diary");
+  const locale = await getLocale();
+  const dateFnsLocale = locale === "ja" ? ja : enUS;
 
   let sentimentLabel = t("neutral");
   let sentimentColor = "text-muted-foreground";
@@ -39,7 +42,7 @@ export async function DiaryEntryDetail({ entry }: { entry: DiaryEntry }) {
           <DeleteEntryButton entryId={entry.id} />
         </div>
         <span className="text-sm font-medium text-muted-foreground">
-          {format(new Date(entry.createdAt), "MMMM d, yyyy • h:mm a")}
+          {format(new Date(entry.createdAt), "PPP • p", { locale: dateFnsLocale })}
         </span>
         <div
           className={`text-sm font-semibold flex items-center gap-1.5 ${sentimentColor}`}

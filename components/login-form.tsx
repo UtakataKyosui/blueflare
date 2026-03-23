@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Link, useRouter } from "@/i18n/navigation";
 
 function getSafeCallbackURL(raw: string | null): string {
   if (!raw) return "/";
